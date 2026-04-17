@@ -19,6 +19,33 @@ function adjustColorBrightness(hex: string, factor: number): string {
   ).toString(16).slice(1);
 }
 
+function hexToLuminance(hex: string): number {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const toLinear = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const r = toLinear((num >> 16) & 255);
+  const g = toLinear((num >> 8) & 255);
+  const b = toLinear(num & 255);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrastRatio(hex1: string, hex2: string): number {
+  const l1 = hexToLuminance(hex1);
+  const l2 = hexToLuminance(hex2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function wcagLevel(ratio: number, large = false): 'AAA' | 'AA' | 'AA Large' | 'Fail' {
+  if (ratio >= 7) return 'AAA';
+  if (ratio >= 4.5) return 'AA';
+  if (ratio >= 3 && large) return 'AA Large';
+  return 'Fail';
+}
+
 function generateColorVariants(hex: string) {
   return [
     { shade: 50, lightness: 0.95 },
@@ -200,7 +227,105 @@ export function CenterCanvas({ designSystem, previewMode }: CenterCanvasProps) {
         </div>
       </div>
 
-      {/* 2. TYPOGRAPHY */}
+      {/* 2. ACCESSIBILITY */}
+      {(() => {
+        const checks = [
+          { label: 'Primary Button', fg: '#FFFFFF', bg: designSystem.primaryColor, large: true, desc: 'White text on primary background' },
+          { label: 'Primary Button (dark text)', fg: '#1C1A18', bg: designSystem.primaryColor, large: true, desc: 'Dark text on primary background' },
+          { label: 'Body Text', fg: isDark ? '#E5E5E5' : '#1C1A18', bg: isDark ? '#0A0A0A' : '#FFFFFF', large: false, desc: 'Body text on page background' },
+          { label: 'Muted Text', fg: isDark ? '#999999' : '#666666', bg: isDark ? '#0A0A0A' : '#FFFFFF', large: false, desc: 'Muted text on page background' },
+          { label: 'Success Badge', fg: '#065f46', bg: '#d1fae5', large: false, desc: 'Success text on success background' },
+          { label: 'Warning Badge', fg: '#92400e', bg: '#fef3c7', large: false, desc: 'Warning text on warning background' },
+          { label: 'Error Badge', fg: '#991b1b', bg: '#fee2e2', large: false, desc: 'Error text on error background' },
+          { label: 'Secondary Button', fg: isDark ? '#E5E5E5' : '#1C1A18', bg: isDark ? '#2A2A2A' : '#F5F5F5', large: true, desc: 'Text on secondary button background' },
+          { label: 'Link on Background', fg: designSystem.primaryColor, bg: isDark ? '#0A0A0A' : '#FFFFFF', large: false, desc: 'Primary color as link on page background' },
+          { label: 'Error Button', fg: '#FFFFFF', bg: designSystem.errorColor, large: true, desc: 'White text on error/destructive button' },
+        ];
+        const levelMeta: Record<string, { color: string; bg: string; icon: string }> = {
+          'AAA': { color: '#065f46', bg: '#d1fae5', icon: '✓✓' },
+          'AA': { color: '#1e40af', bg: '#dbeafe', icon: '✓' },
+          'AA Large': { color: '#92400e', bg: '#fef3c7', icon: '△' },
+          'Fail': { color: '#991b1b', bg: '#fee2e2', icon: '✕' },
+        };
+        const fails = checks.filter(c => wcagLevel(contrastRatio(c.fg, c.bg), c.large) === 'Fail');
+        const warnings = checks.filter(c => wcagLevel(contrastRatio(c.fg, c.bg), c.large) === 'AA Large');
+        return (
+          <div style={sec}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <SectionTitle isDark={isDark}>Accessibility</SectionTitle>
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0, paddingTop: '2px' }}>
+                {fails.length === 0 && warnings.length === 0 ? (
+                  <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', backgroundColor: '#d1fae5', color: '#065f46' }}>All passed</span>
+                ) : (
+                  <>
+                    {fails.length > 0 && <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', backgroundColor: '#fee2e2', color: '#991b1b' }}>{fails.length} failed</span>}
+                    {warnings.length > 0 && <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', backgroundColor: '#fef3c7', color: '#92400e' }}>{warnings.length} warning</span>}
+                  </>
+                )}
+              </div>
+            </div>
+            <SectionSubtitle isDark={isDark}>WCAG 2.1 contrast checks for your color combinations</SectionSubtitle>
+            <Card isDark={isDark}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {checks.map((check, i) => {
+                  const ratio = contrastRatio(check.fg, check.bg);
+                  const level = wcagLevel(ratio, check.large);
+                  const meta = levelMeta[level];
+                  return (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: '12px',
+                      padding: '10px 12px', borderRadius: '8px',
+                      backgroundColor: level === 'Fail' ? (isDark ? '#2a1515' : '#fff5f5') : 'transparent',
+                      border: level === 'Fail' ? `1px solid ${isDark ? '#5a2020' : '#fecaca'}` : '1px solid transparent',
+                      marginBottom: '4px',
+                    }}>
+                      {/* Color swatch pair */}
+                      <div style={{ position: 'relative', width: '36px', height: '36px', flexShrink: 0 }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: check.bg, border: `1px solid ${borderColor}` }} />
+                        <div style={{
+                          position: 'absolute', bottom: '-4px', right: '-4px',
+                          width: '18px', height: '18px', borderRadius: '50%',
+                          backgroundColor: check.fg,
+                          border: `2px solid ${isDark ? '#1A1A1A' : '#FFFFFF'}`,
+                        }} />
+                      </div>
+                      {/* Label + desc */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: textColor }}>{check.label}</p>
+                        <p style={{ margin: 0, fontSize: '11px', color: mutedText, marginTop: '1px' }}>{check.desc}</p>
+                      </div>
+                      {/* Ratio */}
+                      <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: mutedText, flexShrink: 0 }}>
+                        {ratio.toFixed(2)}:1
+                      </span>
+                      {/* Badge */}
+                      <span style={{
+                        padding: '3px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
+                        backgroundColor: meta.bg, color: meta.color, flexShrink: 0, minWidth: '68px', textAlign: 'center' as const,
+                      }}>
+                        {meta.icon} {level}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Legend */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px', paddingTop: '16px', borderTop: `1px solid ${borderColor}`, flexWrap: 'wrap' as const }}>
+                {Object.entries(levelMeta).map(([level, meta]) => (
+                  <div key={level} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', backgroundColor: meta.bg, color: meta.color }}>{meta.icon} {level}</span>
+                    <span style={{ fontSize: '11px', color: mutedText }}>
+                      {level === 'AAA' ? '≥ 7:1' : level === 'AA' ? '≥ 4.5:1' : level === 'AA Large' ? '≥ 3:1 large' : '< 3:1'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        );
+      })()}
+
+      {/* 3. TYPOGRAPHY */}
       <div style={sec}>
         <SectionTitle isDark={isDark}>Typography</SectionTitle>
         <SectionSubtitle isDark={isDark}>Font families and type scale for your design system</SectionSubtitle>
@@ -885,7 +1010,7 @@ export function CenterCanvas({ designSystem, previewMode }: CenterCanvasProps) {
           <span style={{ color: primary }}>♥</span>
         </p>
         <p style={{ margin: 0, fontSize: '11px', color: isDark ? '#555555' : '#BBBBBB', textAlign: 'center' as const, fontFamily: 'JetBrains Mono, monospace' }}>
-          v1.0.0 · Last updated Apr 18, 2026
+          v1.1.0 · Last updated Apr 18, 2026
         </p>
       </div>
 
