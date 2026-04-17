@@ -1,107 +1,166 @@
-import { useState } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { useState, useEffect } from "react";
+import { Moon, Sun, Save } from "lucide-react";
 import { LeftPanel } from "@/components/LeftPanel";
 import { CenterCanvas } from "@/components/CenterCanvas";
-import { RightPanel } from "@/components/RightPanel";
 import { ExportModal } from "@/components/ExportModal";
-import type { DesignTokens, TokenCategory } from "@/types";
-import { DEFAULT_TOKENS } from "@/lib/defaults";
+import type { DesignSystem } from "@/types";
+
+const DEFAULT_DESIGN_SYSTEM: DesignSystem = {
+  projectName: 'My Design System',
+  primaryColor: '#8d1ff4',
+  secondaryColor: '#a855f7',
+  neutralColor: '#666666',
+  successColor: '#10B981',
+  warningColor: '#F59E0B',
+  errorColor: '#EF4444',
+  fontFamily: 'Plus Jakarta Sans, sans-serif',
+  headingFont: 'Plus Jakarta Sans, sans-serif',
+  baseFontSize: 16,
+  typeScaleRatio: 1.25,
+  baseSpacing: 8,
+  borderRadius: 12,
+  elevation: 'soft',
+};
 
 export default function App() {
-  const [tokens, setTokens] = useState<DesignTokens>(DEFAULT_TOKENS);
-  const [activeCategory, setActiveCategory] = useState<TokenCategory>("colors");
-  const [exportOpen, setExportOpen] = useState(false);
+  const [designSystem, setDesignSystem] = useState<DesignSystem>(DEFAULT_DESIGN_SYSTEM);
+  const [appTheme, setAppTheme] = useState<'light' | 'dark'>('light');
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [saveFlash, setSaveFlash] = useState(false);
 
-  const handleToggleDark = () => {
-    setTokens((prev) => ({
-      ...prev,
-      darkMode: !prev.darkMode,
-      colors: prev.darkMode
-        ? DEFAULT_TOKENS.colors
-        : {
-            background: "240 10% 3.9%",
-            foreground: "0 0% 98%",
-            card: "240 10% 3.9%",
-            cardForeground: "0 0% 98%",
-            popover: "240 10% 3.9%",
-            popoverForeground: "0 0% 98%",
-            primary: "0 0% 98%",
-            primaryForeground: "240 5.9% 10%",
-            secondary: "240 3.7% 15.9%",
-            secondaryForeground: "0 0% 98%",
-            muted: "240 3.7% 15.9%",
-            mutedForeground: "240 5% 64.9%",
-            accent: "240 3.7% 15.9%",
-            accentForeground: "0 0% 98%",
-            destructive: "0 62.8% 30.6%",
-            border: "240 3.7% 15.9%",
-            ring: "240 4.9% 83.9%",
-          },
-    }));
+  useEffect(() => {
+    const root = document.documentElement;
+    if (appTheme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [appTheme]);
+
+  const handleSave = () => {
+    setSaveFlash(true);
+    setTimeout(() => setSaveFlash(false), 2000);
   };
 
-  const handleReset = () => {
-    setTokens(DEFAULT_TOKENS);
+  const toggleTheme = () => {
+    setAppTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
-        {/* Top bar */}
-        <header className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background/80 backdrop-blur-sm z-10 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="h-6 w-6 rounded-md bg-primary flex items-center justify-center">
-              <svg
-                className="h-3.5 w-3.5 text-primary-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-sm font-semibold leading-none">Design System Generator</h1>
-              <p className="text-xs text-muted-foreground mt-0.5">Build and export your design tokens</p>
-            </div>
+    <div
+      className={appTheme === 'dark' ? 'dark' : ''}
+      style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: 'var(--background)', color: 'var(--foreground)', fontFamily: 'var(--font-sans)' }}
+    >
+      {/* Header */}
+      <header style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '16px 24px',
+        borderBottom: '1px solid var(--border)',
+        backgroundColor: 'var(--background)',
+        flexShrink: 0,
+        zIndex: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Cube logo */}
+          <div style={{
+            width: '40px',
+            height: '40px',
+            background: 'linear-gradient(135deg, #8d1ff4 0%, #a855f7 100%)',
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="white" fillOpacity="0.9" />
+              <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="white" fillOpacity="0.5" />
+              <path d="M12 12V22L22 17V7L12 12Z" fill="white" fillOpacity="0.7" />
+            </svg>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleReset}
-              className="px-3 py-1.5 text-xs rounded-md border border-border hover:bg-accent transition-colors"
-            >
-              Reset
-            </button>
-            <button
-              onClick={() => setExportOpen(true)}
-              className="px-3 py-1.5 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              Export Tokens
-            </button>
+          <div>
+            <h1 style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: 'var(--foreground)' }}>
+              Design System Generator
+            </h1>
+            <p style={{ fontSize: '13px', color: 'var(--muted-foreground)', margin: 0 }}>
+              Create professional design tokens from your brand colors
+            </p>
           </div>
-        </header>
-
-        {/* Main three-panel layout */}
-        <div className="flex flex-1 overflow-hidden">
-          <LeftPanel activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
-          <CenterCanvas
-            tokens={tokens}
-            activeCategory={activeCategory}
-            onToggleDark={handleToggleDark}
-            onReset={handleReset}
-          />
-          <RightPanel
-            tokens={tokens}
-            activeCategory={activeCategory}
-            onChange={setTokens}
-            onExport={() => setExportOpen(true)}
-          />
         </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={toggleTheme}
+            style={{
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              backgroundColor: 'transparent',
+              color: 'var(--foreground)',
+              cursor: 'pointer',
+            }}
+          >
+            {appTheme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+          <button
+            onClick={handleSave}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              backgroundColor: saveFlash ? '#7c3aed' : 'var(--primary)',
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600',
+              fontFamily: 'var(--font-sans)',
+              transition: 'background-color 0.2s',
+            }}
+          >
+            <Save size={15} />
+            {saveFlash ? 'Saved!' : 'Save'}
+          </button>
+        </div>
+      </header>
+
+      {/* Main layout */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <aside style={{
+          width: '320px',
+          flexShrink: 0,
+          borderRight: '1px solid var(--border)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: 'var(--background)',
+        }}>
+          <LeftPanel
+            designSystem={designSystem}
+            setDesignSystem={setDesignSystem}
+            onExport={() => setShowExportModal(true)}
+          />
+        </aside>
+
+        <main style={{ flex: 1, overflow: 'auto', backgroundColor: 'var(--muted)' }}>
+          <CenterCanvas designSystem={designSystem} previewMode={appTheme} />
+        </main>
       </div>
 
-      <ExportModal open={exportOpen} onClose={() => setExportOpen(false)} tokens={tokens} />
-    </TooltipProvider>
+      {showExportModal && (
+        <ExportModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          designSystem={designSystem}
+        />
+      )}
+    </div>
   );
 }
