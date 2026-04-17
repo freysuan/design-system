@@ -607,7 +607,202 @@ export function CenterCanvas({ designSystem, previewMode }: CenterCanvasProps) {
         </div>
       </div>
 
-      {/* 9. FORM ELEMENTS */}
+      {/* 9. SHADOWS */}
+      <div style={sec}>
+        <SectionTitle isDark={isDark}>Shadows</SectionTitle>
+        <SectionSubtitle isDark={isDark}>Elevation and shadow tokens for depth and hierarchy</SectionSubtitle>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Shadow scale */}
+          <Card isDark={isDark}>
+            <CardLabel isDark={isDark}>Shadow Scale</CardLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {[
+                { label: 'None', token: '--shadow-none', value: 'none', shadow: 'none' },
+                { label: 'XS', token: '--shadow-xs', value: '0 1px 2px rgba(0,0,0,0.05)', shadow: '0 1px 2px rgba(0,0,0,0.05)' },
+                { label: 'SM', token: '--shadow-sm', value: '0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', shadow: '0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' },
+                { label: 'MD', token: '--shadow-md', value: '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)', shadow: '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)' },
+                { label: 'LG', token: '--shadow-lg', value: '0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.04)', shadow: '0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.04)' },
+                { label: 'XL', token: '--shadow-xl', value: '0 16px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.06)', shadow: '0 16px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.06)' },
+                { label: '2XL', token: '--shadow-2xl', value: '0 24px 60px rgba(0,0,0,0.15)', shadow: '0 24px 60px rgba(0,0,0,0.15)' },
+              ].map(({ label, token, value, shadow }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div style={{
+                    width: '64px', height: '64px', borderRadius: `${designSystem.borderRadius}px`,
+                    backgroundColor: isDark ? '#2A2A2A' : '#FFFFFF',
+                    boxShadow: shadow,
+                    flexShrink: 0,
+                    border: label === 'None' ? `1px dashed ${borderColor}` : 'none',
+                  }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: textColor }}>{label}</span>
+                      <span style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: primary, backgroundColor: isDark ? '#1A1A1A' : '#F5F0FF', padding: '2px 8px', borderRadius: '4px' }}>{token}</span>
+                    </div>
+                    <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: mutedText, wordBreak: 'break-all' as const }}>{value}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Elevation levels */}
+          <Card isDark={isDark}>
+            <CardLabel isDark={isDark}>Elevation Levels</CardLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+              {[
+                { label: 'Ground', desc: 'Base surface', elevation: 0, shadow: 'none', active: designSystem.elevation === 'none' },
+                { label: 'Raised', desc: 'Cards & panels', elevation: 1, shadow: '0 2px 8px rgba(0,0,0,0.08)', active: designSystem.elevation === 'soft' },
+                { label: 'Overlay', desc: 'Modals & popovers', elevation: 3, shadow: '0 8px 24px rgba(0,0,0,0.14)', active: designSystem.elevation === 'lifted' },
+              ].map(item => (
+                <div key={item.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '100%', height: '80px', borderRadius: `${designSystem.borderRadius}px`,
+                    backgroundColor: isDark ? '#2A2A2A' : '#FFFFFF',
+                    boxShadow: item.shadow,
+                    border: item.active ? `2px solid ${primary}` : `1px solid ${borderColor}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{ fontSize: '20px', color: item.active ? primary : mutedText, fontWeight: '700' }}>{item.elevation}</span>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ margin: '0 0 2px 0', fontSize: '13px', fontWeight: '600', color: item.active ? primary : textColor }}>{item.label}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: mutedText }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Colored shadows */}
+          <Card isDark={isDark}>
+            <CardLabel isDark={isDark}>Colored Shadows</CardLabel>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' as const }}>
+              {[
+                { label: 'Primary', color: primary },
+                { label: 'Success', color: designSystem.successColor },
+                { label: 'Warning', color: designSystem.warningColor },
+                { label: 'Error', color: designSystem.errorColor },
+              ].map(({ label, color }) => (
+                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '72px', height: '72px', borderRadius: `${designSystem.borderRadius}px`,
+                    backgroundColor: color,
+                    boxShadow: `0 8px 20px ${color}55`,
+                  }} />
+                  <span style={{ fontSize: '12px', color: mutedText }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* 10. ANIMATIONS */}
+      <div style={sec}>
+        <SectionTitle isDark={isDark}>Animations</SectionTitle>
+        <SectionSubtitle isDark={isDark}>Duration and easing tokens for smooth motion design</SectionSubtitle>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Durations */}
+          <Card isDark={isDark}>
+            <CardLabel isDark={isDark}>Duration Tokens</CardLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {[
+                { label: 'Instant', token: '--duration-instant', value: '100ms', desc: 'Micro-interactions, tooltips' },
+                { label: 'Fast', token: '--duration-fast', value: '150ms', desc: 'Button states, hover effects' },
+                { label: 'Normal', token: '--duration-normal', value: '200ms', desc: 'Most UI transitions' },
+                { label: 'Slow', token: '--duration-slow', value: '300ms', desc: 'Modals, drawers, complex transitions' },
+                { label: 'Slower', token: '--duration-slower', value: '500ms', desc: 'Page transitions, loaders' },
+              ].map(({ label, token, value, desc }) => {
+                const ms = parseInt(value);
+                return (
+                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ width: '80px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: textColor }}>{label}</span>
+                    </div>
+                    <div style={{ flex: 1, height: '6px', backgroundColor: isDark ? '#2A2A2A' : '#E5E5E5', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%', borderRadius: '3px', backgroundColor: primary,
+                        width: `${Math.min((ms / 500) * 100, 100)}%`,
+                      }} />
+                    </div>
+                    <div style={{ width: '52px', textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{ fontSize: '13px', fontFamily: 'JetBrains Mono, monospace', color: primary, fontWeight: '600' }}>{value}</span>
+                    </div>
+                    <div style={{ width: '180px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: mutedText, backgroundColor: isDark ? '#0A0A0A' : '#F5F5F5', padding: '2px 7px', borderRadius: '4px' }}>{token}</span>
+                    </div>
+                    <span style={{ fontSize: '12px', color: mutedText, flex: 1 }}>{desc}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* Easing curves */}
+          <Card isDark={isDark}>
+            <CardLabel isDark={isDark}>Easing Curves</CardLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+              {[
+                { label: 'Linear', token: '--ease-linear', value: 'linear', curve: 'M 0 100 L 100 0' },
+                { label: 'Ease In', token: '--ease-in', value: 'cubic-bezier(0.4, 0, 1, 1)', curve: 'M 0 100 C 40 100, 100 60, 100 0' },
+                { label: 'Ease Out', token: '--ease-out', value: 'cubic-bezier(0, 0, 0.2, 1)', curve: 'M 0 100 C 0 40, 60 0, 100 0' },
+                { label: 'Ease In Out', token: '--ease-in-out', value: 'cubic-bezier(0.4, 0, 0.2, 1)', curve: 'M 0 100 C 40 100, 60 0, 100 0' },
+                { label: 'Spring', token: '--ease-spring', value: 'cubic-bezier(0.34, 1.56, 0.64, 1)', curve: 'M 0 100 C 34 100, 40 -30, 100 0' },
+                { label: 'Bounce', token: '--ease-bounce', value: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)', curve: 'M 0 100 C 40 140, 60 -40, 100 0' },
+              ].map(({ label, token, value, curve }) => (
+                <div key={label} style={{
+                  padding: '16px', borderRadius: '10px',
+                  border: `1px solid ${borderColor}`,
+                  backgroundColor: isDark ? '#0A0A0A' : '#FAFAFA',
+                  display: 'flex', gap: '14px', alignItems: 'center',
+                }}>
+                  {/* SVG curve preview */}
+                  <svg width="56" height="56" viewBox="0 0 100 100" style={{ flexShrink: 0 }}>
+                    <rect width="100" height="100" rx="8" fill={isDark ? '#1A1A1A' : '#FFFFFF'} stroke={borderColor} strokeWidth="1" />
+                    <line x1="8" y1="8" x2="8" y2="92" stroke={borderColor} strokeWidth="1" />
+                    <line x1="8" y1="92" x2="92" y2="92" stroke={borderColor} strokeWidth="1" />
+                    <path d={curve.replace('M 0 100', 'M 8 92').replace('L 100 0', 'L 92 8').replace(/C (\d+) (\d+),/g, (_, x, y) => `C ${Math.round(8 + Number(x)*0.84)} ${Math.round(92 - Number(y)*0.84)},`)} stroke={primary} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                  </svg>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '600', color: textColor }}>{label}</p>
+                    <p style={{ margin: '0 0 6px 0', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: primary, backgroundColor: isDark ? '#1A1A1A' : '#F5F0FF', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>{token}</p>
+                    <p style={{ margin: 0, fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: mutedText, wordBreak: 'break-all' as const }}>{value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Live animation demo */}
+          <Card isDark={isDark}>
+            <CardLabel isDark={isDark}>Animation Preview</CardLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+              {[
+                { label: 'Pulse', cls: 'skeleton-pulse' },
+                { label: 'Fade', cls: '' },
+                { label: 'Scale', cls: '' },
+                { label: 'Slide', cls: '' },
+              ].map(({ label, cls }) => (
+                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    className={cls}
+                    style={{
+                      width: '56px', height: '56px', borderRadius: `${designSystem.borderRadius}px`,
+                      backgroundColor: primary, opacity: cls ? undefined : 0.85,
+                    }}
+                  />
+                  <span style={{ fontSize: '12px', color: mutedText }}>{label}</span>
+                </div>
+              ))}
+            </div>
+            <p style={{ margin: '16px 0 0', fontSize: '12px', color: mutedText, fontStyle: 'italic' }}>
+              Pulse animation is live — use these tokens with <code style={{ fontFamily: 'JetBrains Mono, monospace', backgroundColor: isDark ? '#0A0A0A' : '#F5F5F5', padding: '1px 5px', borderRadius: '3px' }}>transition</code> or <code style={{ fontFamily: 'JetBrains Mono, monospace', backgroundColor: isDark ? '#0A0A0A' : '#F5F5F5', padding: '1px 5px', borderRadius: '3px' }}>animation</code> CSS properties.
+            </p>
+          </Card>
+        </div>
+      </div>
+
+      {/* 11. FORM ELEMENTS */}
       <div style={{ ...sec, borderBottom: 'none' }}>
         <SectionTitle isDark={isDark}>Form Elements</SectionTitle>
         <SectionSubtitle isDark={isDark}>Input fields, checkboxes, radio buttons, and dropdowns</SectionSubtitle>
@@ -674,6 +869,24 @@ export function CenterCanvas({ designSystem, previewMode }: CenterCanvasProps) {
             </Card>
           </div>
         </div>
+      </div>
+
+      {/* FOOTER */}
+      <div style={{
+        padding: '24px 32px',
+        borderTop: `1px solid ${borderColor}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <p style={{ margin: 0, fontSize: '13px', color: mutedText, textAlign: 'center' as const }}>
+          © 2026 Frey Suan · Built with{' '}
+          <span style={{ color: textColor, fontWeight: '600' }}>Figma Make</span>
+          {' & '}
+          <span style={{ color: textColor, fontWeight: '600' }}>Claude Code</span>
+          {' '}
+          <span style={{ color: primary }}>♥</span>
+        </p>
       </div>
 
     </div>
