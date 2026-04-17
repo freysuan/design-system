@@ -876,12 +876,16 @@ export function CenterCanvas({ designSystem, previewMode }: CenterCanvasProps) {
         padding: '24px 32px',
         borderTop: `1px solid ${borderColor}`,
         display: 'flex',
+        flexDirection: 'column' as const,
         alignItems: 'center',
-        justifyContent: 'center',
+        gap: '6px',
       }}>
         <p style={{ margin: 0, fontSize: '13px', color: mutedText, textAlign: 'center' as const }}>
           © 2026 Frey Suan · Built with Figma Make & Claude Code{' '}
           <span style={{ color: primary }}>♥</span>
+        </p>
+        <p style={{ margin: 0, fontSize: '11px', color: isDark ? '#555555' : '#BBBBBB', textAlign: 'center' as const, fontFamily: 'JetBrains Mono, monospace' }}>
+          v1.0.0 · Last updated Apr 18, 2026
         </p>
       </div>
 
