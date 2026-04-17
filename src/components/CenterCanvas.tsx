@@ -880,11 +880,7 @@ export function CenterCanvas({ designSystem, previewMode }: CenterCanvasProps) {
         justifyContent: 'center',
       }}>
         <p style={{ margin: 0, fontSize: '13px', color: mutedText, textAlign: 'center' as const }}>
-          © 2026 Frey Suan · Built with{' '}
-          <span style={{ color: textColor, fontWeight: '600' }}>Figma Make</span>
-          {' & '}
-          <span style={{ color: textColor, fontWeight: '600' }}>Claude Code</span>
-          {' '}
+          © 2026 Frey Suan · Built with Figma Make & Claude Code{' '}
           <span style={{ color: primary }}>♥</span>
         </p>
       </div>
